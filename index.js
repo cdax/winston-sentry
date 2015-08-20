@@ -1,7 +1,7 @@
 var util = require('util'),
     winston = require('winston'),
     raven = require('raven'),
-    Transport = require('winston/lib/winston/transports').Transport;
+    Transport = require('winston/lib/winston/transports/transport.js').Transport;
 
 var SENTRY_LOG_LEVELS = [
   'debug',
