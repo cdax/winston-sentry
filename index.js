@@ -24,6 +24,11 @@ var Sentry = exports.Sentry = function (options) {
   this.name = 'sentry';
   this.dsn = options.dsn;
 
+var clients = {};
+  SENTRY_LOG_LEVELS.forEach(function (level) {
+    clients[level] = new raven.Client(options.dsn, { level: level });
+  });
+  this._clients = clients;
 };
 
 util.inherits(Sentry, winston.Transport);
@@ -39,11 +44,6 @@ Sentry.prototype.name = 'sentry';
 // Make a request to a winstond server or any Sentry server which can
 // handle json-rpc.
 //
-var clients = {};
-SENTRY_LOG_LEVELS.forEach(function (level) {
-  clients[level] = new raven.Client(this.dsn, { level: level });
-});
-Sentry.prototype._clients = clients;
 
 //
 // ### function log (level, msg, [meta], callback)
@@ -55,7 +55,6 @@ Sentry.prototype._clients = clients;
 //
 Sentry.prototype.log = function (level, msg, meta, tags, callback) {
   var self = this, client;
-
   if (typeof meta === 'function') {
     callback = meta;
     meta = {};
@@ -70,7 +69,6 @@ Sentry.prototype.log = function (level, msg, meta, tags, callback) {
   } else {
     client = this._clients.debug;
   }
-
   client.captureMessage(msg, { extra: meta, tags: tags });
 
   client.on('logged', function () {
